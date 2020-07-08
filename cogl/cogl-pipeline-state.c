@@ -980,12 +980,23 @@ cogl_pipeline_set_blend (CoglPipeline *pipeline,
   if (!count)
     return FALSE;
 
-  if (count == 1)
-    rgb = a = statements;
-  else
+  switch (statements[0].mask)
     {
+    case COGL_BLEND_STRING_CHANNEL_MASK_RGB:
       rgb = &statements[0];
       a = &statements[1];
+      break;
+
+    case COGL_BLEND_STRING_CHANNEL_MASK_ALPHA:
+      a = &statements[0];
+      rgb = &statements[1];
+      break;
+
+    default:
+      g_warning ("Invalid channel mask from parser");
+    case COGL_BLEND_STRING_CHANNEL_MASK_RGBA:
+      rgb = a = statements;
+      break;
     }
 
   authority =

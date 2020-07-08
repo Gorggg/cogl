@@ -1210,17 +1210,26 @@ cogl_pipeline_set_layer_combine (CoglPipeline *pipeline,
   if (!count)
     return FALSE;
 
-  if (statements[0].mask == COGL_BLEND_STRING_CHANNEL_MASK_RGBA)
+  switch (statements[0].mask)
     {
+    case COGL_BLEND_STRING_CHANNEL_MASK_RGB:
+      rgb = &statements[0];
+      a = &statements[1];
+      break;
+
+    case COGL_BLEND_STRING_CHANNEL_MASK_ALPHA:
+      a = &statements[0];
+      rgb = &statements[1];
+      break;
+
+    default:
+      g_warning ("Invalid channel mask from parser");
+    case COGL_BLEND_STRING_CHANNEL_MASK_RGBA:
       _cogl_blend_string_split_rgba_statement (statements,
                                                &split[0], &split[1]);
       rgb = &split[0];
       a = &split[1];
-    }
-  else
-    {
-      rgb = &statements[0];
-      a = &statements[1];
+      break;
     }
 
   /* FIXME: compare the new state with the current state! */
