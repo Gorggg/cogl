@@ -84,6 +84,7 @@ typedef struct
   GLuint gl_program;
   UnitState *unit_state;
   int next_constant_id;
+  CoglBool inc_next_constant_id;
 
   /* Age of the program the last time the uniforms were flushed. This
      is used to detect when we need to flush all of the uniforms */
@@ -400,7 +401,8 @@ setup_arg (CoglPipeline *pipeline,
         int unit_index = _cogl_pipeline_layer_get_unit_index (layer);
         UnitState *unit_state = &shader_state->unit_state[unit_index];
 
-        unit_state->constant_id = shader_state->next_constant_id++;
+        unit_state->constant_id = shader_state->next_constant_id;
+        shader_state->inc_next_constant_id = TRUE;
         unit_state->has_combine_constant = TRUE;
         unit_state->dirty_combine_constant = TRUE;
 
@@ -775,6 +777,12 @@ _cogl_pipeline_fragend_arbfp_add_layer (CoglPipeline *pipeline,
                              big_state->texture_combine_alpha_func,
                              big_state->texture_combine_alpha_src,
                              big_state->texture_combine_alpha_op);
+    }
+
+  if (shader_state->inc_next_constant_id)
+    {
+      shader_state->next_constant_id++;
+      shader_state->inc_next_constant_id = FALSE;
     }
 
   return TRUE;
