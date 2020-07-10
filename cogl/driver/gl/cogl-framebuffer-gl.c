@@ -415,6 +415,14 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
       differences &= ~COGL_FRAMEBUFFER_STATE_BIND;
     }
 
+  /* Flushing the clip state will often modify the model view and
+   * projection matrices, so flush these as well */
+  if (differences & COGL_FRAMEBUFFER_STATE_CLIP)
+    {
+      differences |= COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      differences |= COGL_FRAMEBUFFER_STATE_PROJECTION;
+    }
+
   COGL_FLAGS_FOREACH_START (&differences, 1, bit)
     {
       /* XXX: We considered having an array of callbacks for each state index
